@@ -1,0 +1,2 @@
+docker run -it --rm --net web_default --link postgres_db:postgres postgres psql -h postgres -U postgres
+docker run -it --rm --net web_default --link postgres_db:postgres postgres psql -h postgres -U todoadmin todo
