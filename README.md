@@ -1,7 +1,11 @@
 # react-native-fullstack-todo
 React Native, Docker, and Node express API
 
-
+```
+cd docker && docker-compose up
+cd web && npm start
+cd app && react-native run-ios
+```
 
 ## References
 # Basic setup of SafariView and Passport
