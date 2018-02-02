@@ -9,6 +9,7 @@ https://hub.docker.com/_/postgres
 Install postgres
 ```
 docker pull postgres
+```
 
 ### npm install
 ```
