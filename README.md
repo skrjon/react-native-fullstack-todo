@@ -1,11 +1,32 @@
 # react-native-fullstack-todo
 React Native, Docker, and Node express API
 
+### Example source for web/config.js
+```
+export const google = {
+  callbackURL: 'http://localhost:3000/auth/google/callback',
+  clientID: 'INSERT-CLIENT-ID-HERE',
+  clientSecret: 'INSERT-CLIENT-SECRET-HERE',
+};
+
+export const SECRET = "INSERT-RANDOM-HASH-HERE";
+```
+
+### To launch the app you will need to run these three commands
+
 ```
 cd docker && docker-compose up
 cd web && npm start
 cd app && react-native run-ios
 ```
+
+### BUG with RN and vector icons
+https://github.com/oblador/react-native-vector-icons/issues/626
+
+```
+rm ./node_modules/react-native/local-cli/core/__fixtures__/files/package.json
+```
+
 
 ## References
 ### Basic setup of SafariView and Passport
@@ -29,9 +50,4 @@ https://goshakkk.name/auth-in-react-native-apps/
 https://facebook.github.io/react-native/docs/linking.html
 https://facebook.github.io/react-native/docs/0.52/linking-libraries-ios.html
 
-### BUG with RN and vector icons
-https://github.com/oblador/react-native-vector-icons/issues/626
 
-```
-rm ./node_modules/react-native/local-cli/core/__fixtures__/files/package.json
-```
