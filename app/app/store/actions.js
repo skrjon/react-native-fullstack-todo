@@ -8,7 +8,7 @@ export const updateProfile = (profile) => ({ profile, type: profileActions.PROFI
 
 export const getProfile = () => (dispatch, getState) => {
   dispatch(fetchingProfile());
-  fetch('http://localhost:3000/profile', {
+  fetch('http://mytesttodo.app:3000/profile', {
       headers: new Headers({
         'Authorization': getState().profile.token,
       }),
@@ -25,7 +25,7 @@ const updateTask = (task) => ({ task, type: taskActions.UPDATE});
 
 export const getTasks = () => (dispatch, getState) => {
   dispatch(fetchingTasks());
-  fetch('http://localhost:3000/tasks', {
+  fetch('http://mytesttodo.app:3000/tasks', {
       headers: new Headers({
         'Authorization': getState().profile.token,
       }),
@@ -37,7 +37,7 @@ export const getTasks = () => (dispatch, getState) => {
 
 export const createTask = (task) => (dispatch, getState) => {
   dispatch(fetchingTasks());
-  fetch('http://localhost:3000/tasks', {
+  fetch('http://mytesttodo.app:3000/tasks', {
       body: JSON.stringify(task),
       headers: new Headers({
         'Authorization': getState().profile.token,
@@ -52,7 +52,7 @@ export const createTask = (task) => (dispatch, getState) => {
 
 export const toggleTask = (id, completed) => (dispatch, getState) => {
   dispatch(fetchingTasks());
-  fetch('http://localhost:3000/tasks/' + id, {
+  fetch('http://mytesttodo.app:3000/tasks/' + id, {
       body: JSON.stringify({completed:completed}),
       headers: new Headers({
         'Authorization': getState().profile.token,

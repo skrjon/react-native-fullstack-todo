@@ -60,7 +60,7 @@ class Login extends Component<{}> {
   };
 
   // Handle Login with Google button tap
-  loginWithGoogle = () => this.openURL('http://localhost:3000/auth/google');
+  loginWithGoogle = () => this.openURL('http://mytesttodo.app:3000/auth/google');
 
   // Open URL in a browser
   openURL = (url) => {
