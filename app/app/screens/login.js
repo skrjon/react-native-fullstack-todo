@@ -1,9 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -22,6 +16,10 @@ import {
   getProfile,
   loginProfile,
 } from '../store/actions';
+
+import {
+  DOMAIN
+} from '../config';
 
 class Login extends Component<{}> {
   constructor(props) {
@@ -60,7 +58,7 @@ class Login extends Component<{}> {
   };
 
   // Handle Login with Google button tap
-  loginWithGoogle = () => this.openURL('http://mytesttodo.app:3000/auth/google');
+  loginWithGoogle = () => this.openURL(DOMAIN + '/auth/google');
 
   // Open URL in a browser
   openURL = (url) => {

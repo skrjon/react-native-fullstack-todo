@@ -46,6 +46,7 @@ docker run -it --rm --net web_default --link postgres_db:postgres postgres psql 
 ### Google Play setup
 You'll need to create credientials for API access and you'll need to add a valid Authorized redirect URI. Google won't let you use an IP or an invalid TLD you have to use something valid.  If you know what your going to use thats great you can use that.  For this example app I used.
 ```
+http://localhost:3000/auth/google/callback
 http://mytesttodo.app:3000/auth/google/callback
 ```
 
