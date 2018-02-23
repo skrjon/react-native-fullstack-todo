@@ -1,7 +1,7 @@
 import passport from 'passport';
 import GoogleStrategy from 'passport-google-oauth20';
 import Router from 'express-promise-router';
-import jwt from 'jwt-simple';
+import jwt from 'jsonwebtoken';
 import uuid from 'uuid';
 
 import { google, SECRET } from '../config';
@@ -12,7 +12,8 @@ export function tokenForUser (id) {
     iat: new Date().getTime(),
     id: id,
   };
-  return jwt.encode(obj, SECRET);
+  return jwt.sign(obj, SECRET, { algorithm: 'HS256'});
+
 }
 
 export async function requireAuth(req, res, next) {
@@ -21,7 +22,7 @@ export async function requireAuth(req, res, next) {
   // authHeader is required
   if(authHeader === undefined) return next(res.send(401));
   // If we have our authHeader then decode and pull the user id from it
-  let jwtToken = jwt.decode(authHeader, SECRET);
+  let jwtToken = jwt.verify(authHeader, SECRET);
   let user_id = jwtToken.id;
   // Get user from database
   const { rows } = await users.getByUserId(user_id);
