@@ -9,27 +9,33 @@ import users from '../db/users';
 
 export function tokenForUser (id) {
   let obj = {
-    iat: new Date().getTime(),
+    created: Date.now(),
     id: id,
   };
-  return jwt.sign(obj, SECRET, { algorithm: 'HS256'});
+  return jwt.sign(obj, SECRET, {expiresIn: 15});
 
 }
 
 export async function requireAuth(req, res, next) {
-  let authHeader = req.get('Authorization');
-  console.log('requireAuth', authHeader);
+  let token = req.get('Authorization');
+  console.log('requireAuth', token);
   // authHeader is required
-  if(authHeader === undefined) return next(res.send(401));
+  if(token === undefined) res.status(401).send('No token received');
   // If we have our authHeader then decode and pull the user id from it
-  let jwtToken = jwt.verify(authHeader, SECRET);
-  let user_id = jwtToken.id;
-  // Get user from database
-  const { rows } = await users.getByUserId(user_id);
-  if (rows.length !== 1) return next(res.send(400, "No user found"));
-  // Add user to request
-  req.user = rows[0];
-  next();
+  try {
+    let decoded = jwt.verify(token, SECRET);
+    console.log('decoded', decoded);
+    let user_id = decoded.id;
+    // Get user from database
+    const { rows } = await users.getByUserId(user_id);
+    if (rows.length !== 1) return next(res.status(400).send('No user found'));
+    // Add user to request
+    req.user = rows[0];
+    next();
+  } catch(err) {
+    console.log('error', err);
+    res.status(401).send(err.message);
+  }
 }
 
 export function mountAuth(app) {

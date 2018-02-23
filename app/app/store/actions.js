@@ -12,6 +12,7 @@ export const addUser = (user) => ({ type: userActions.ADD, user });
 
 export const fetchingProfile = () => ({ type: profileActions.FETCHING });
 export const loginProfile = (token) => ({ token, type: profileActions.LOGIN });
+export const logoutProfile = () => ({type: profileActions.LOGOUT });
 export const updateProfile = (profile) => ({ profile, type: profileActions.PROFILE });
 
 export const getProfile = () => async (dispatch, getState) => {
@@ -24,6 +25,12 @@ export const getProfile = () => async (dispatch, getState) => {
         'Authorization': getState().profile.token,
       }),
     });
+    console.log('getProfile:response', response);
+    if(response.status === 401) {
+      alert(response._bodyText);
+      dispatch(logoutProfile());
+      return;
+    }
     let json = await response.json();
     // Update redux store with profile data
     dispatch(updateProfile(json));
@@ -47,6 +54,12 @@ export const getTasks = () => async (dispatch, getState) => {
         'Authorization': getState().profile.token,
       }),
     });
+    console.log('getTasks:response', response);
+    if(response.status === 401) {
+      alert(response._bodyText);
+      dispatch(logoutProfile());
+      return;
+    }
     let json = await response.json();
     // Update redux store with task list
     dispatch(receiveTasks(json));
@@ -68,6 +81,11 @@ export const createTask = (task) => async (dispatch, getState) => {
       }),
       method: 'PUT',
     });
+    if(response.status === 401) {
+      alert(response._bodyText);
+      dispatch(logoutProfile());
+      return;
+    }
     let json = await response.json();
     // Update redux store with new task
     dispatch(addTask(json));
@@ -89,6 +107,11 @@ export const toggleTask = (id, completed) => async (dispatch, getState) => {
       }),
       method: 'POST',
     });
+    if(response.status === 401) {
+      alert(response._bodyText);
+      dispatch(logoutProfile());
+      return;
+    }
     let json = await response.json();
     // Update redux store with new task information
     dispatch(updateTask(json));
