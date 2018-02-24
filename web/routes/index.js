@@ -9,4 +9,4 @@ export function mountRoutes(app) {
   app.use('/profile', [validate(validation.auth.authorization), requireAuth, profile]);
   app.use('/tasks', [validate(validation.auth.authorization), requireAuth, tasks]);
   app.use('/users', users);
-};
+}

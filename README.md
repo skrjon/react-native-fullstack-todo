@@ -40,6 +40,10 @@ cd app && react-native run-ios
 
 After running docker-compose up you can connect psql to your postgres instance
 ```
+docker exec -it postgres_db bash
+```
+OR
+```
 docker run -it --rm --net web_default --link postgres_db:postgres postgres psql -h postgres -U postgres
 ```
 

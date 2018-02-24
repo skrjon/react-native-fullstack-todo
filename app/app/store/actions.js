@@ -12,7 +12,7 @@ export const addUser = (user) => ({ type: userActions.ADD, user });
 
 export const fetchingProfile = () => ({ type: profileActions.FETCHING });
 export const loginProfile = (token) => ({ token, type: profileActions.LOGIN });
-export const logoutProfile = () => ({type: profileActions.LOGOUT });
+export const removeProfile = () => ({type: profileActions.REMOVE });
 export const updateProfile = (profile) => ({ profile, type: profileActions.PROFILE });
 
 export const getProfile = () => async (dispatch, getState) => {
@@ -26,9 +26,9 @@ export const getProfile = () => async (dispatch, getState) => {
       }),
     });
     console.log('getProfile:response', response);
-    if(response.status === 401) {
+    if(!response.ok) {
       alert(response._bodyText);
-      dispatch(logoutProfile());
+      dispatch(removeProfile());
       return;
     }
     let json = await response.json();
@@ -36,6 +36,23 @@ export const getProfile = () => async (dispatch, getState) => {
     dispatch(updateProfile(json));
   } catch (error) {
     console.error('getProfile', error);
+  }
+};
+
+export const logoutProfile = () => async (dispatch, getState) => {
+  // Set status to fetching
+  dispatch(fetchingProfile());
+  try {
+    // Gather data from API
+    let response = await fetch(DOMAIN + '/profile/logout', {
+      headers: new Headers({
+        'Authorization': getState().profile.token,
+      }),
+    });    
+    dispatch(removeProfile());
+  } catch (error) {
+    console.error('logoutProfile', error);
+    dispatch(removeProfile());
   }
 };
 
@@ -55,9 +72,9 @@ export const getTasks = () => async (dispatch, getState) => {
       }),
     });
     console.log('getTasks:response', response);
-    if(response.status === 401) {
+    if(!response.ok) {
       alert(response._bodyText);
-      dispatch(logoutProfile());
+      dispatch(removeProfile());
       return;
     }
     let json = await response.json();
@@ -81,9 +98,9 @@ export const createTask = (task) => async (dispatch, getState) => {
       }),
       method: 'PUT',
     });
-    if(response.status === 401) {
+    if(!response.ok) {
       alert(response._bodyText);
-      dispatch(logoutProfile());
+      dispatch(removeProfile());
       return;
     }
     let json = await response.json();
@@ -107,9 +124,9 @@ export const toggleTask = (id, completed) => async (dispatch, getState) => {
       }),
       method: 'POST',
     });
-    if(response.status === 401) {
+    if(!response.ok) {
       alert(response._bodyText);
-      dispatch(logoutProfile());
+      dispatch(removeProfile());
       return;
     }
     let json = await response.json();

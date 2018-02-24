@@ -3,8 +3,8 @@ import { combineReducers } from 'redux';
 export const profileActions = {
   FETCHING: 'PROFILE_FETCHING',
   LOGIN: 'PROFILE_LOGIN',
-  LOGOUT: 'PROFILE_LOGOUT',
   PROFILE: 'PROFILE_PROFILE',
+  REMOVE: 'PROFILE_REMOVE',
 };
 
 function profile(state = {isFetching:false, profile: undefined, token:undefined}, action = {}) {
@@ -19,17 +19,17 @@ function profile(state = {isFetching:false, profile: undefined, token:undefined}
         ...state,
         token: action.token,
       };
-    case profileActions.LOGOUT:
-      return {
-        isFetching: false,
-        profile: undefined,
-        token: undefined,
-      };
     case profileActions.PROFILE:
       return {
         ...state,
         isFetching: false,
         profile: action.profile,
+      };
+    case profileActions.REMOVE:
+      return {
+        isFetching: false,
+        profile: undefined,
+        token: undefined,
       };
     default:
       return state;

@@ -12,6 +12,7 @@ import { CheckBox } from 'react-native-elements';
 
 import {
   ActivityIndicator,
+  Button,
   Image,
   Platform,
   ScrollView,
@@ -22,9 +23,10 @@ import {
 } from 'react-native';
 
 import {
-  toggleTask,
   createTask,
-  getTasks
+  getTasks,
+  logoutProfile,
+  toggleTask,
 } from '../store/actions';
 
 class Tasks extends Component<{}> {
@@ -45,14 +47,14 @@ class Tasks extends Component<{}> {
   }
 
   createTask() {
-    this.props.createTask({description:this.state.new});
+    this.props.createTask({description: this.state.new});
     this.setState({
       new: '',
     });
   }
 
   render() {
-    const { tasks, profile } = this.props;
+    const { logoutProfile, profile, tasks } = this.props;
     console.log('render tasks', tasks, profile);
 
     return (
@@ -68,6 +70,7 @@ class Tasks extends Component<{}> {
               <Text style={styles.name}>
                 Welcome {profile.profile.name}!
               </Text>
+              <Button onPress={logoutProfile} title="Logout" />
             </View>
           }
           {tasks.isFetching ?
@@ -79,16 +82,16 @@ class Tasks extends Component<{}> {
               <View>
                 <TextInput
                   style={{borderColor: 'gray', borderWidth: 1, height: 40, marginHorizontal: 8}}
-                  onChangeText={(text) => this.setState({new:text})}
+                  onChangeText={(text) => this.setState({new: text})}
                   onSubmitEditing={() => this.createTask()}
                   value={this.state.new} />
               </View>
               <View>
                 {tasks.list.map((task) => (
                   <View key={task.id}>
-                    <CheckBox 
+                    <CheckBox
                       checked={task.completed}
-                      onIconPress={(value) => this.toggleTask(task.id, !task.completed)} 
+                      onIconPress={(value) => this.toggleTask(task.id, !task.completed)}
                       title={`${task.description} (${task.name})`}
                     />
                   </View>
@@ -143,6 +146,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => ({
   createTask: bindActionCreators(createTask, dispatch),
   getTasks: bindActionCreators(getTasks, dispatch),
+  logoutProfile: bindActionCreators(logoutProfile, dispatch),
   toggleTask: bindActionCreators(toggleTask, dispatch),
 });
 
