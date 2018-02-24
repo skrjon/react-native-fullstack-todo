@@ -8,17 +8,7 @@ import users from '../db/users';
 import tokens from '../db/tokens';
 
 async function tokenForUser(user_id, platform = '', version = '') {
-  let token_id = uuid.v4();
-  let created = Math.floor(Date.now() / 1000);
-  let token = {
-    created: created,
-    exp: created + 60, // Reserved attribute for JWT to set the time which the token will expire
-    id: token_id,
-  };
-  const tr = await tokens.create(token_id, user_id, token.created, token.exp, platform, version);
-  if (tr.rowCount === 0) {
-    throw Error('failed to create token');
-  }
+  const token = await tokens.create(user_id, platform, version);
   return jwt.sign(token, SECRET);
 }
 
@@ -58,38 +48,33 @@ export function mountAuth(app) {
       console.log('GoogleStrategy', profile);
       // Find or Create User in Database
       const { rows } = await users.getByGoogleId(profile.id);
-      let id = null;
+      let user_id = null;
       if (rows.length < 1) {
-        id = uuid.v4();
-        console.log('creating user', id);
-        await users.create(id, profile.id, profile.displayName, profile.image.url);
+        user_id = uuid.v4();
+        console.log('creating user', user_id);
+        await users.create(user_id, profile.id, profile.displayName, profile.image.url);
       } else {
-        id = rows[0].id;
-        await users.update(id, profile.displayName, profile.image.url);
+        user_id = rows[0].id;
+        await users.update(user_id, profile.displayName, profile.image.url);
       }
       // Return User Token
-      let token = await tokenForUser(id);
+      let token = await tokenForUser(user_id);
       done(null, {token: token});
     }
   ));
-  // Serialize user into the sessions
-  passport.serializeUser((user, done) => done(null, user));
-  // Deserialize user from the sessions
-  passport.deserializeUser((user, done) => done(null, user));
-
+  // Initialize passport
   app.use(passport.initialize());
-  app.use(passport.session());
 
   // Set up Google auth routes
   app.get('/auth/google',
-    passport.authenticate('google', { scope: ['profile'] })
+    passport.authenticate('google', { scope: ['profile'], session: false })
   );
   app.get('/auth/google/logout', (req, res) => {
     req.logut();
     res.redirect('/auth/google');
   });
   app.get('/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: '/auth/google' }),
+    passport.authenticate('google', { failureRedirect: '/auth/google', session: false }),
     // this redirect will be handled in app by Linking.addEventListener
     (req, res) => res.redirect('todoapp://login?token=' + JSON.stringify(req.user.token))
   );

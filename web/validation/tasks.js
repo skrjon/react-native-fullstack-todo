@@ -5,7 +5,7 @@ module.exports.get = {
     allowUnknownParams: false,
   },
   params: {
-    id : Joi.string().uuid().required(),
+    id: Joi.string().uuid().required(),
   },
 };
 
@@ -18,7 +18,7 @@ module.exports.post = {
     allowUnknownParams: false,
   },
   params: {
-    id : Joi.string().uuid().required(),
+    id: Joi.string().uuid().required(),
   },
 };
 

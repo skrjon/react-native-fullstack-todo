@@ -11,8 +11,8 @@ const router = new Router();
 
 router.get('/', async (req, res) => {
   console.log('tasks', req.user);
-  const { rows } = await tasks.getAll();
-  res.json(rows);
+  const gr = await tasks.getAll();
+  res.json(gr.rows);
 });
 
 router.put('/', validate(validation.tasks.put), async (req, res) => {
@@ -28,20 +28,20 @@ router.put('/', validate(validation.tasks.put), async (req, res) => {
     res.status(500).send('Failed to create task');
   }
   console.log('insert rowCount', ir.rowCount);
-  const { rows } = await tasks.getByTaskId(id);
-  if (rows.length === 0) {
+  const gr = await tasks.getByTaskId(id);
+  if (gr.rowCount === 0) {
     res.status(500).send('Failed to find created task');
   }
-  res.json(rows[0]);
+  res.json(gr.rows[0]);
 });
 
 router.get('/:id', validate(validation.tasks.get), async (req, res) => {
   const { id } = req.params;
-  const { rows } = await tasks.getByTaskId(id);
-  if (rows.length === 0) {
+  const gr = await tasks.getByTaskId(id);
+  if (gr.rowCount === 0) {
     res.status(400).send('Invalid task id');
   }
-  res.json(rows[0]);
+  res.json(gr.rows[0]);
 });
 
 router.post('/:id', validate(validation.tasks.post), async (req, res) => {
@@ -56,11 +56,11 @@ router.post('/:id', validate(validation.tasks.post), async (req, res) => {
     if (ur.rowCount === 0) {
       res.status(500).send('Failed to update task');
     }
-    const { rows } = await tasks.getByTaskId(id);
-    if (rows.length === 0) {
+    const gr = await tasks.getByTaskId(id);
+    if (gr.rowCount === 0) {
       res.status(500).send('Failed to get updated task');
     }
-    res.json(rows[0]);
+    res.json(gr.rows[0]);
   }
 });
 
