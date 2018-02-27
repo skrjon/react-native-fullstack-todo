@@ -44,7 +44,7 @@ export const logoutProfile = () => async (dispatch, getState) => {
   dispatch(fetchingProfile());
   try {
     // Gather data from API
-    let response = await fetch(DOMAIN + '/profile/logout', {
+    let response = await fetch(DOMAIN + '/auth/logout', {
       headers: new Headers({
         'Authorization': getState().profile.token,
       }),
