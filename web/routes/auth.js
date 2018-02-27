@@ -7,11 +7,6 @@ router.get('/google',
   passport.authenticate('google', { scope: ['profile'], session: false })
 );
 
-router.get('/google/logout', (req, res) => {
-  req.logut();
-  res.redirect('/auth/google');
-});
-
 router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/auth/google', session: false }),
   // this redirect will be handled in app by Linking.addEventListener

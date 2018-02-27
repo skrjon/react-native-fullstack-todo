@@ -27,10 +27,9 @@ export async function googleCallback(accessToken, refreshToken, user, cb) {
   }
   // Return User Token
   try {
-    let token_row = await tokens.create(user_id);
-    console.log(token_row);
-    let signed_token = jwt.sign(token_row.id, SECRET);
-    console.log(signed_token);
+    let token = await tokens.create(user_id);
+    // When signing the token we need to pass in the whole object because it uses reserved attributes
+    let signed_token = jwt.sign(token, SECRET);
     cb(null, {token: signed_token});
   } catch (error) {
     cb(null, {token: null});

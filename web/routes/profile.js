@@ -14,6 +14,7 @@ router.get('/logout', wrapAsync(async (req, res) => {
   await tokens.remove(req.token_id);
   // We don't need a results object because if the token doesn't exist they are logged out
   // and if it did it is now deleted
+  req.logout();
   res.send('Log out successfull');
 }));
 

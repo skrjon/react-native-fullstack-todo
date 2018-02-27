@@ -20,9 +20,22 @@ export async function requireAuth(req, res, next) {
   // authHeader is required
   if (token === undefined) throw boom.unauthorized('No token received');
   // If we have our authHeader then decode and pull the user id from it
-  let decoded = jwt.verify(token, SECRET);
+  let decoded = null;
+  try {
+    decoded = jwt.verify(token, SECRET);
+  } catch (err) {
+    // If the token has expired we need to log the user out
+    if (err.name === 'TokenExpiredError') {
+      await tokens.remove(req.token_id);
+      // We don't need a results object because if the token doesn't exist they are logged out
+      // and if it did it is now deleted
+      req.logout();
+      throw boom.unauthorized('Token Expired');
+    }
+    throw boom.badImplementation(err);
+  }
   // Get token from database
-  const token_result = await tokens.getByTokenId(decoded);
+  const token_result = await tokens.getByTokenId(decoded.id);
   // If no token is found user must login again
   if (token_result.rows.length !== 1) throw boom.unauthorized('No token found');
   let token_row = token_result.rows[0];
