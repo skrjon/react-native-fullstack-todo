@@ -1,24 +1,23 @@
-import Router from 'express-promise-router';
-import tokens from '../db/tokens';
+import Router from 'express';
+import boom from 'boom';
 
-// create a new express-promise-router
-// this has the same API as the normal express router except
-// it allows you to use async functions as route handlers
+import tokens from '../db/tokens';
+import { wrapAsync } from '../lib/middleware';
+
 const router = new Router();
 
-router.get('/', async (req, res) => {
+router.get('/', wrapAsync(async (req, res) => {
   console.log('profile', req.user);
   res.json(req.user);
-});
+}));
 
-router.get('/logout', async (req, res) => {
-  const tr = await tokens.remove(req.token.id);
-  if (tr.rows > 0) {
-    res.status(401).send('Logged out');
+router.get('/logout', wrapAsync(async (req, res) => {
+  const tr = await tokens.remove(req.token_id);
+  if (tr.rowCount > 0) {
+    throw boom.unauthorized('Log out successfull');
   } else {
-    res.status(500).send('There was a problem logging out');
+    throw boom.badImplementation('There was a problem logging out');
   }
-});
+}));
 
-// export our router to be mounted by the parent application
 module.exports = router;

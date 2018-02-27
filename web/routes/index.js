@@ -1,10 +1,14 @@
-import { requireAuth } from './auth';
+import validate from 'express-validation';
+
+import { requireAuth, wrapAsync } from '../lib/middleware';
+
+import auth from './auth';
 import profile from './profile';
 import tasks from './tasks';
-import validate from 'express-validation';
 import validation from '../validation';
 
 export function mountRoutes(app) {
-  app.use('/profile', [validate(validation.auth.authorization), requireAuth, profile]);
-  app.use('/tasks', [validate(validation.auth.authorization), requireAuth, tasks]);
+  app.use('/profile', [validate(validation.auth.authorization), wrapAsync(requireAuth), profile]);
+  app.use('/tasks', [validate(validation.auth.authorization), wrapAsync(requireAuth), tasks]);
+  app.use('/auth', auth);
 }

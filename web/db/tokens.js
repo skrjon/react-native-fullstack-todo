@@ -1,7 +1,8 @@
+import boom from 'boom';
 import uuid from 'uuid';
 import db from './';
 
-async function create(user_id, platform, version) {
+async function create(user_id) {
   let token_id = uuid.v4();
   let created = Math.floor(Date.now() / 1000);
   let token = {
@@ -11,12 +12,10 @@ async function create(user_id, platform, version) {
   };
   // Create token record in db
   const tr = await db.query(
-    'INSERT INTO tokens (id,user_id,created,expires,platform,version) VALUES ($1,$2,$3,$4,$5,$6)',
-    [token_id, user_id, token.created, token.exp, platform, version]
+    'INSERT INTO tokens (id,user_id,created,expires) VALUES ($1,$2,$3,$4)',
+    [token_id, user_id, token.created, token.exp]
   );
-  if (tr.rowCount === 0) {
-    throw Error('failed to create token');
-  }
+  if (tr.rowCount === 0) throw boom.badImplementation('failed to create token');
   return token;
 }
 

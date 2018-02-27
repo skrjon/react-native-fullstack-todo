@@ -1,16 +1,16 @@
 import db from './';
 
-async function create(id, google_id, name, img) {
+async function create(id, google_id, name, img_url) {
   await db.query(
     'INSERT INTO users (id,google_id,name,img) VALUES ($1,$2,$3,$4)',
-    [id, google_id, name, img]
+    [id, google_id, name, img_url]
   );
 }
 
-async function update(id, name, img) {
+async function update(id, name, img_url) {
   await db.query(
     'UPDATE users SET name = $1, img = $2 WHERE id = $3',
-    [name, img, id]
+    [name, img_url, id]
   );
 }
 

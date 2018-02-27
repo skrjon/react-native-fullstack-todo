@@ -39,8 +39,6 @@ CREATE TABLE tokens (
 	id UUID PRIMARY KEY,
 	user_id UUID REFERENCES users (id),
 	created INTEGER NOT NULL,  /* Valid data size until 2038 */
-	expires INTEGER NOT NULL,  /* Valid data size until 2038 */
-	platform TEXT DEFAULT '',
-	version TEXT DEFAULT ''
+	expires INTEGER NOT NULL  /* Valid data size until 2038 */
 );
 ALTER TABLE tokens OWNER TO todoadmin;
