@@ -27,12 +27,6 @@ export const google = {
   clientSecret: 'INSERT-CLIENT-SECRET-HERE',
 };
 
-export const JWT_SETTINGS = {
-  ALG: 'HS256',
-  // The SECRET needs to be at least the same number of bits as the HS Algorithm
-  SECRET: 'INSERT-RANDOM-HASH-HERE',
-};
-
 // The SECRET needs to be at least the same number of bits as the HS Algorithm
 // You can use the crypto library to generate these secrets 32B = 256b
 // crypto.randomBytes(32).toString('hex');
