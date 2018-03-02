@@ -33,6 +33,17 @@ export const JWT_SETTINGS = {
   SECRET: 'INSERT-RANDOM-HASH-HERE',
 };
 
+// The SECRET needs to be at least the same number of bits as the HS Algorithm
+// You can use the crypto library to generate these secrets 32B = 256b
+// crypto.randomBytes(32).toString('hex');
+export const CRYPTO = {
+  ACCESS_ALG: 'HS256',
+  ACCESS_SECRET: 'INSERT-RANDOM-HASH-HERE',
+  // To improve security we want a different level of enctyption with a different secret for the refresh token
+  REFRESH_ALG: 'HS512',
+  REFRESH_SECRET: 'INSERT-RANDOM-HASH-HERE',
+};
+
 ```
 
 ### To launch the app you will need to run these three commands
