@@ -17,7 +17,7 @@ router.get('/google/callback',
     session: false,
   }),
   // this redirect will be handled in app by Linking.addEventListener
-  (req, res) => res.redirect('todoapp://login?token=' + JSON.stringify(req.user.token))
+  (req, res) => res.redirect('todoapp://login?token=' + JSON.stringify(req.user))
 );
 
 module.exports = router;

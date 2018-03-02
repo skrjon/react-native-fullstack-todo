@@ -22,7 +22,7 @@ export const getProfile = () => async (dispatch, getState) => {
     // Gather data from API
     let response = await fetch(DOMAIN + '/profile', {
       headers: new Headers({
-        'Authorization': getState().profile.token,
+        'access_token': getState().profile.token.access_token,
       }),
     });
     console.log('getProfile:response', response);
@@ -46,7 +46,7 @@ export const logoutProfile = () => async (dispatch, getState) => {
     // Gather data from API
     let response = await fetch(DOMAIN + '/auth/logout', {
       headers: new Headers({
-        'Authorization': getState().profile.token,
+        'access_token': getState().profile.token.access_token,
       }),
     });    
     dispatch(removeProfile());
@@ -68,7 +68,7 @@ export const getTasks = () => async (dispatch, getState) => {
     // Gather data from API
     let response = await fetch(DOMAIN + '/tasks', {
       headers: new Headers({
-        'Authorization': getState().profile.token,
+        'access_token': getState().profile.token.access_token,
       }),
     });
     console.log('getTasks:response', response);
@@ -93,7 +93,7 @@ export const createTask = (task) => async (dispatch, getState) => {
     let response = await fetch(DOMAIN + '/tasks', {
       body: JSON.stringify(task),
       headers: new Headers({
-        'Authorization': getState().profile.token,
+        'access_token': getState().profile.token.access_token,
         'Content-Type': 'application/json'
       }),
       method: 'PUT',
@@ -119,7 +119,7 @@ export const toggleTask = (id, completed) => async (dispatch, getState) => {
     let response = await fetch(DOMAIN + '/tasks/' + id, {
       body: JSON.stringify({completed:completed}),
       headers: new Headers({
-        'Authorization': getState().profile.token,
+        'access_token': getState().profile.token.access_token,
         'Content-Type': 'application/json'
       }),
       method: 'POST',

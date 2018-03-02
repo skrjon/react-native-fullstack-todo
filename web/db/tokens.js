@@ -7,7 +7,7 @@ async function create(user_id) {
   let created = Math.floor(Date.now() / 1000);
   let token = {
     created: created,
-    exp: created + 60, // Reserved attribute for JWT to set the time which the token will expire
+    exp: created + (60 * 60 * 24 * 45), // JWT Reserved attribute for the epoch time which the token will expire
     id: token_id,
   };
   // Create token record in db

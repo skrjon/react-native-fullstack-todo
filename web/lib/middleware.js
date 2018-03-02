@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import boom from 'boom';
 
-import { JWT_SETTINGS } from '../config';
+import { CRYPTO } from '../config';
 import users from '../db/users';
 import tokens from '../db/tokens';
 
@@ -15,7 +15,7 @@ export const wrapAsync = fn => (req, res, next) => {
 };
 
 export async function requireAuth(req, res, next) {
-  let token = req.get('Authorization');
+  let token = req.get('access_token');
   console.log('requireAuth', token);
   // authHeader is required
   if (token === undefined) throw boom.unauthorized('No token received');
@@ -23,7 +23,7 @@ export async function requireAuth(req, res, next) {
   let decoded = null;
   try {
     // Instead of using headless tokens we are only allowing one algorithm for verification
-    decoded = jwt.verify(token, JWT_SETTINGS.SECRET, { algorithms: [JWT_SETTINGS.ALG] });
+    decoded = jwt.verify(token, CRYPTO.ACCESS_SECRET, { algorithms: [CRYPTO.ACCESS_ALG] });
   } catch (err) {
     // We will be removing the token and in cause there is an error we should logout the user first
     req.logout();
