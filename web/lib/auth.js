@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import uuid from 'uuid';
 // import boom from 'boom';
 
-import { SECRET } from '../config';
+import { JWT_SETTINGS } from '../config';
 import users from '../db/users';
 import tokens from '../db/tokens';
 
@@ -29,7 +29,8 @@ export async function googleCallback(accessToken, refreshToken, user, cb) {
   try {
     let token = await tokens.create(user_id);
     // When signing the token we need to pass in the whole object because it uses reserved attributes
-    let signed_token = jwt.sign(token, SECRET);
+    let signed_token = jwt.sign(token, JWT_SETTINGS.SECRET, {algorithm: JWT_SETTINGS.ALG});
+    // Lets return the headless token
     cb(null, {token: signed_token});
   } catch (error) {
     cb(null, {token: null});

@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import boom from 'boom';
 
-import { SECRET } from '../config';
+import { JWT_SETTINGS } from '../config';
 import users from '../db/users';
 import tokens from '../db/tokens';
 
@@ -22,7 +22,8 @@ export async function requireAuth(req, res, next) {
   // If we have our authHeader then decode and pull the user id from it
   let decoded = null;
   try {
-    decoded = jwt.verify(token, SECRET);
+    // Instead of using headless tokens we are only allowing one algorithm for verification
+    decoded = jwt.verify(token, JWT_SETTINGS.SECRET, { algorithms: [JWT_SETTINGS.ALG] });
   } catch (err) {
     // We will be removing the token and in cause there is an error we should logout the user first
     req.logout();

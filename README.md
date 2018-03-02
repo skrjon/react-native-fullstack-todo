@@ -27,7 +27,12 @@ export const google = {
   clientSecret: 'INSERT-CLIENT-SECRET-HERE',
 };
 
-export const SECRET = "INSERT-RANDOM-HASH-HERE";
+export const JWT_SETTINGS = {
+  ALG: 'HS256',
+  // The SECRET needs to be at least the same number of bits as the HS Algorithm
+  SECRET: 'INSERT-RANDOM-HASH-HERE',
+};
+
 ```
 
 ### To launch the app you will need to run these three commands
