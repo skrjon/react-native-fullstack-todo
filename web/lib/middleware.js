@@ -24,15 +24,16 @@ export async function requireAuth(req, res, next) {
   try {
     decoded = jwt.verify(token, SECRET);
   } catch (err) {
-    // If the token has expired we need to log the user out
+    // We will be removing the token and in cause there is an error we should logout the user first
+    req.logout();
+    // There was an error decoding the token so we must remove it
+    await tokens.remove(req.token_id);
+    // We don't need to send the err object to the client
     if (err.name === 'TokenExpiredError') {
-      await tokens.remove(req.token_id);
-      // We don't need a results object because if the token doesn't exist they are logged out
-      // and if it did it is now deleted
-      req.logout();
       throw boom.unauthorized('Token Expired');
     }
-    throw boom.badImplementation(err);
+    // Most likely this will be a JsonWebTokenError
+    throw boom.unauthorized('Invalid Token');
   }
   // Get token from database
   const token_result = await tokens.getByTokenId(decoded.id);
