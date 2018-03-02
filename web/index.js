@@ -27,16 +27,11 @@ mountRoutes(app);
 
 // Default error handler
 app.use((err, req, res, next) => {
-  console.log('ERROR ERROR ERROR');
-  console.log(err);
-  res.status(500).send('Something broke!');
-  // ONCE BOOM AND WRAP ARE USED ON ALL ROUTES
-  // if (err.isServer) {
-  // log the error...
-  // probably you don't want to log unauthorized access
-  // or do you?
-  // }
-  // return res.status(err.output.statusCode).json(err.output.payload);
+  // Check if the error is server side and log those details
+  if (err.isServer) {
+    console.error(err);
+  }
+  return res.status(err.output.statusCode).json(err.output.payload);
 });
 
 app.listen(process.env.PORT || 3000);
