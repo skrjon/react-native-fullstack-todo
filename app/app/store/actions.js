@@ -210,7 +210,7 @@ export const toggleTask = (id, completed) => async (dispatch, getState) => {
       return dispatch(finishedTasks());
     }
     // Update redux store with new task information
-    dispatch(updateTask(response));
+    return dispatch(updateTask(response));
   } catch (error) {
     console.error('toggleTask', error);
     return dispatch(finishedTasks());
