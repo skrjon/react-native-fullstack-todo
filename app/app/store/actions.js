@@ -46,7 +46,7 @@ export const updateProfile = (profile) => ({ profile, type: profileActions.PROFI
 
 export const getProfile = () => async (dispatch, getState) => {
   // Set status to fetching
-  dispatch(fetchingProfile());
+  await dispatch(fetchingProfile());
   try {
     // Gather data from API
     let fetch_response = await fetch(DOMAIN + '/profile', {
@@ -79,7 +79,7 @@ export const getProfile = () => async (dispatch, getState) => {
 
 export const logoutProfile = () => async (dispatch, getState) => {
   // Set status to fetching
-  dispatch(fetchingProfile());
+  await dispatch(fetchingProfile());
   try {
     // Gather data from API
     let response = await fetch(DOMAIN + '/auth/logout', {
@@ -111,7 +111,7 @@ const updateTask = (task) => ({ task, type: taskActions.UPDATE});
 
 export const getTasks = () => async (dispatch, getState) => {
   // Set status to fetching
-  dispatch(fetchingTasks());
+  await dispatch(fetchingTasks());
   try {
     // Gather data from API
     let fetch_response = await fetch(DOMAIN + '/tasks', {
@@ -128,7 +128,7 @@ export const getTasks = () => async (dispatch, getState) => {
       if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(getTasks());
       // If token was not refreshed logout
       alert(response.message);
-      dispatch(finishedTasks());
+      await dispatch(finishedTasks());
       return dispatch(removeProfile());
     }
     if(!fetch_response.ok) {
@@ -136,7 +136,7 @@ export const getTasks = () => async (dispatch, getState) => {
       return dispatch(finishedTasks());
     }
     // Update redux store with task list
-    dispatch(receiveTasks(response));
+    return dispatch(receiveTasks(response));
   } catch (error) {
     console.error('getTasks', error);
     return dispatch(finishedTasks());
@@ -145,7 +145,7 @@ export const getTasks = () => async (dispatch, getState) => {
 
 export const createTask = (task) => async (dispatch, getState) => {
   // Set status to fetching
-  dispatch(fetchingTasks());
+  await dispatch(fetchingTasks());
   try {
     // Gather data from API
     let fetch_response = await fetch(DOMAIN + '/tasks', {
@@ -165,7 +165,7 @@ export const createTask = (task) => async (dispatch, getState) => {
       if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(createTask(task));
       // If token was not refreshed logout
       alert(response.message);
-      dispatch(finishedTasks());
+      await dispatch(finishedTasks());
       return dispatch(removeProfile());
     }
     if(!fetch_response.ok) {
@@ -173,7 +173,7 @@ export const createTask = (task) => async (dispatch, getState) => {
       return dispatch(finishedTasks());
     }
     // Update redux store with new task
-    dispatch(addTask(response));
+    return dispatch(addTask(response));
   } catch (error) {
     console.error('createTask', error);
     return dispatch(finishedTasks());
@@ -182,7 +182,7 @@ export const createTask = (task) => async (dispatch, getState) => {
 
 export const toggleTask = (id, completed) => async (dispatch, getState) => {
   // Set status to fetching
-  dispatch(fetchingTasks());
+  await dispatch(fetchingTasks());
   try {
     // Gather data from API
     let fetch_response = await fetch(DOMAIN + '/tasks/' + id, {
@@ -202,7 +202,7 @@ export const toggleTask = (id, completed) => async (dispatch, getState) => {
       if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(toggleTask(id, completed));
       // If token was not refreshed logout
       alert(response.message);
-      dispatch(finishedTasks());
+      await dispatch(finishedTasks());
       return dispatch(removeProfile());
     }
     if(!fetch_response.ok) {
