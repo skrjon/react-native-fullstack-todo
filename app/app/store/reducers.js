@@ -58,6 +58,7 @@ function users(state = {isFetching:false, list:[], login:undefined}, action = {}
 export const taskActions = {
   ADD: 'TASK_ADD',
   FETCHING: 'TASK_FETCHING',
+  FINISHED: 'TASK_FINISHED',
   RECEIVE: 'TASK_RECEIVE',
   UPDATE: 'TASK_UPDATE',
 };
@@ -77,6 +78,11 @@ function tasks(state = {isFetching:false, list:[]}, action = {}) {
       return {
         ...state,
         isFetching: true,
+      };
+    case taskActions.FINISHED:
+      return {
+        ...state,
+        isFetching: false,
       };
     case taskActions.RECEIVE:
       return {

@@ -37,7 +37,6 @@ export const CRYPTO = {
   REFRESH_ALG: 'HS512',
   REFRESH_SECRET: 'INSERT-RANDOM-HASH-HERE',
 };
-
 ```
 
 ### To launch the app you will need to run these three commands

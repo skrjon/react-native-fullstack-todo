@@ -39,13 +39,19 @@ export async function requireAuth(req, res, next) {
   // Get token from database
   const token_result = await tokens.getByTokenId(decoded.id);
   // If no token is found user must login again
-  if (token_result.rows.length !== 1) throw boom.unauthorized('No token found');
+  if (token_result.rows.length !== 1) {
+    req.logout();
+    throw boom.unauthorized('No token found');
+  }
   let token_row = token_result.rows[0];
   req.token_id = token_row.id;
   // Get user form database
   const user_result = await users.getByUserId(token_row.user_id);
   // If no user is found we have a problem, this should never happen
-  if (user_result.rows.length !== 1) throw boom.badImplementation('No user associated to token found');
+  if (user_result.rows.length !== 1) {
+    req.logout();
+    throw boom.badImplementation('No user associated to token found');
+  }
   // Add user to request
   req.user = user_result.rows[0];
   // Call the next middleware
