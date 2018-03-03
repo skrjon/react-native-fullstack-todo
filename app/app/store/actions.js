@@ -10,7 +10,36 @@ import {
 
 export const addUser = (user) => ({ type: userActions.ADD, user });
 
+export const refreshAccessToken = () => async (dispatch, getState) => {
+  console.log('refreshAccessToken');
+  let fetch_response = await fetch(DOMAIN + '/auth/token', {
+    headers: new Headers({
+      'refresh_token': getState().profile.token.refresh_token,
+    }),
+  });
+  console.log('refreshAccessToken',fetch_response);
+  let response = await fetch_response.json();
+  if(response.statusCode === 401) {
+    // If we receive a 401 here it means our refresh token is no longer valid
+    alert(response.message);
+    return dispatch(removeProfile());
+  }
+  if(!fetch_response.ok) {
+    // If we recieve an error here the user will need to login again
+    alert(response.message);
+    return dispatch(removeProfile());
+  }
+  // Assemble the updated token
+  let token = {
+    access_token: response.access_token,
+    expires_in: response.expires_in,
+    refresh_token: getState().profile.token.refresh_token,
+  }
+  return dispatch(loginProfile(token));
+}
+
 export const fetchingProfile = () => ({ type: profileActions.FETCHING });
+export const finishedProfile = () => ({ type: profileActions.FINISHED });
 export const loginProfile = (token) => ({ token, type: profileActions.LOGIN });
 export const removeProfile = () => ({type: profileActions.REMOVE });
 export const updateProfile = (profile) => ({ profile, type: profileActions.PROFILE });
@@ -27,9 +56,18 @@ export const getProfile = () => async (dispatch, getState) => {
     });
     let response = await fetch_response.json();
     console.log('getProfile:response', response);
-    if(!fetch_response.ok) {
+    if(response.statusCode === 401) {
+      // Get a new Access Token
+      let refresh_response = await dispatch(refreshAccessToken());
+      // If successful recall toggleTask
+      if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(getProfile());
+      // If token was not refreshed logout
       alert(response.message);
       return dispatch(removeProfile());
+    }
+    if(!fetch_response.ok) {
+      alert(response.message);
+      return dispatch(finishedProfile());
     }
     // Update redux store with profile data
     return dispatch(updateProfile(response));
@@ -48,7 +86,16 @@ export const logoutProfile = () => async (dispatch, getState) => {
       headers: new Headers({
         'access_token': getState().profile.token.access_token,
       }),
-    });    
+    });
+    if(response.statusCode === 401) {
+      // Get a new Access Token
+      let refresh_response = await dispatch(refreshAccessToken());
+      // If successful recall toggleTask
+      if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(logoutProfile());
+      // If token was not refreshed logout anyway
+      alert(response.message);
+      return dispatch(removeProfile());
+    }
     return dispatch(removeProfile());
   } catch (error) {
     console.error('logoutProfile', error);
@@ -75,7 +122,13 @@ export const getTasks = () => async (dispatch, getState) => {
     console.log('getTasks:response', response);
     let response = await fetch_response.json();
     if(response.statusCode === 401) {
+      // Get a new Access Token
+      let refresh_response = await dispatch(refreshAccessToken());
+      // If successful recall toggleTask
+      if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(getTasks());
+      // If token was not refreshed logout
       alert(response.message);
+      dispatch(finishedTasks());
       return dispatch(removeProfile());
     }
     if(!fetch_response.ok) {
@@ -99,14 +152,20 @@ export const createTask = (task) => async (dispatch, getState) => {
       body: JSON.stringify(task),
       headers: new Headers({
         'access_token': getState().profile.token.access_token,
-        'Content-Type': 'application/json'
+        'content-type': 'application/json'
       }),
       method: 'PUT',
     });
     let response = await fetch_response.json();
     console.log('createTask:response', response);
     if(response.statusCode === 401) {
+      // Get a new Access Token
+      let refresh_response = await dispatch(refreshAccessToken());
+      // If successful recall toggleTask
+      if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(createTask(task));
+      // If token was not refreshed logout
       alert(response.message);
+      dispatch(finishedTasks());
       return dispatch(removeProfile());
     }
     if(!fetch_response.ok) {
@@ -137,13 +196,18 @@ export const toggleTask = (id, completed) => async (dispatch, getState) => {
     let response = await fetch_response.json();
     console.log('toggleTask:response', response);
     if(response.statusCode === 401) {
+      // Get a new Access Token
+      let refresh_response = await dispatch(refreshAccessToken());
+      // If successful recall toggleTask
+      if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(toggleTask(id, completed));
+      // If token was not refreshed logout
       alert(response.message);
-      dispatch(removeProfile());
+      dispatch(finishedTasks());
+      return dispatch(removeProfile());
     }
     if(!fetch_response.ok) {
       alert(response.message);
-      dispatch(finishedTasks());
-      return;
+      return dispatch(finishedTasks());
     }
     // Update redux store with new task information
     dispatch(updateTask(response));
