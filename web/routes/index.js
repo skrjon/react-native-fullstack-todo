@@ -11,4 +11,7 @@ export function mountRoutes(app) {
   app.use('/profile', [validate(validation.auth.authorization), wrapAsync(requireAuth), profile]);
   app.use('/tasks', [validate(validation.auth.authorization), wrapAsync(requireAuth), tasks]);
   app.use('/auth', auth);
+  app.use('/', (req, res) => {
+    return res.status(200).send();
+  });
 }
