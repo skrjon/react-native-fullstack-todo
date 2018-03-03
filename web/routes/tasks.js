@@ -1,7 +1,5 @@
 import Router from 'express';
-import uuid from 'uuid';
 import validate from 'express-validation';
-import boom from 'boom';
 
 import tasks from '../db/tasks';
 import validation from '../validation';
@@ -10,45 +8,33 @@ import { wrapAsync } from '../lib/middleware';
 const router = new Router();
 
 router.get('/', wrapAsync(async (req, res) => {
-  const gr = await tasks.getAll();
-  res.json(gr.rows);
+  let all_tasks = await tasks.getAll();
+  res.json(all_tasks);
 }));
 
 router.put('/', validate(validation.tasks.put), wrapAsync(async (req, res) => {
   const { description } = req.body;
-  const user = req.user;
-  if (user === undefined) throw boom.unauthorized();
   // Create a new task
-  const id = uuid.v4();
-  const ir = await tasks.create(id, user.id, description);
-  if (ir.rowCount === 0) throw boom.badRequest('Failed to create task');
-  // Get the created task
-  const gr = await tasks.getByTaskId(id);
-  if (gr.rowCount === 0) throw boom.badImplementation('Failed to find created task');
+  let new_task = await tasks.createAndGet(req.user.id, description);
   // Return the created task
-  res.json(gr.rows[0]);
+  res.json(new_task);
 }));
 
 router.get('/:id', validate(validation.tasks.get), wrapAsync(async (req, res) => {
   const { id } = req.params;
   // Get the task
-  const gr = await tasks.getByTaskId(id);
-  if (gr.rowCount === 0) throw boom.badRequest('Invalid task id');
+  let task = await tasks.getByTaskId(id);
   // Return the task
-  res.json(gr.rows[0]);
+  res.json(task);
 }));
 
 router.post('/:id', validate(validation.tasks.post), wrapAsync(async (req, res) => {
   const { id } = req.params;
   const { completed } = req.body;
   // Update the task
-  const ur = await tasks.update(id, completed);
-  if (ur.rowCount === 0) throw boom.badRequest('Failed to update task');
-  // Get the udpated task
-  const gr = await tasks.getByTaskId(id);
-  if (gr.rowCount === 0) throw boom.badImplementation('Failed to get updated task');
+  let updated_task = await tasks.updateAndGet(id, completed);
   // Return the task
-  res.json(gr.rows[0]);
+  res.json(updated_task);
 }));
 
 // export our router to be mounted by the parent application
