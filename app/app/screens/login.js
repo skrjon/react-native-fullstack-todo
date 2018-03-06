@@ -46,15 +46,27 @@ class Login extends Component<{}> {
   handleOpenURL = ({ url }) => {
     console.log('handleOpenURL', url);
     const { getProfile, loginProfile } = this.props;
-    // Extract stringified user string out of the URL
-    const [, token] = url.match(/token=([^#]+)/);
-    loginProfile(JSON.parse(decodeURI(token)));
     // Close the Browser
     if (Platform.OS === 'ios') {
       SafariView.dismiss();
     }
-    // Fetch profile
-    getProfile();
+    // Extract stringified user string out of the URL
+    let token_matches = url.match(/token=([^#]+)/);
+    console.log('returned token matches', token_matches);
+    let info_matches = url.match(/info=([^#]+)/);
+    console.log('returned info matches', info_matches);
+    // Handle returned info
+    if (info_matches) {
+      let info = JSON.parse(decodeURI(info_matches[1]));
+      alert(info.message);
+    }
+    // Handle returned token
+    if (token_matches) {
+      let token = JSON.parse(decodeURI(token_matches[1]));
+      loginProfile(token);
+      // Fetch profile
+      getProfile();
+    }
   };
 
   // Handle Login with Google button tap

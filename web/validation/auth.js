@@ -17,7 +17,5 @@ module.exports.refresh_access_token = {
   },
   options: {
     allowUnknownHeader: false,
-    status: 401,
-    statusText: 'Authentication Required',
   },
 };

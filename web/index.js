@@ -4,7 +4,7 @@ import helmet from 'helmet';
 // import boom from 'boom';
 import ev from 'express-validation';
 
-import { googleCallback } from './lib/auth';
+import { googleVerifyCallback } from './lib/auth';
 import { mountRoutes } from './routes';
 
 import { googleOAuth } from './config';
@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Add authentication strategies
-passport.use(new GoogleStrategy(googleOAuth, googleCallback));
+passport.use(new GoogleStrategy(googleOAuth, googleVerifyCallback));
 // Initialize passport
 app.use(passport.initialize());
 

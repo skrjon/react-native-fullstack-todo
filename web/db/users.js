@@ -1,3 +1,5 @@
+import boom from 'boom';
+import uuid from 'uuid';
 // import bcrypt from 'bcrypt';
 // import crypto from 'crypto';
 
@@ -30,32 +32,41 @@ import db from './';
 //   return await bcrypt.compare(password, hash);
 // }
 
-async function create(id, refresh_token, google_id, name, img_url) {
-  await db.query(
+async function create(refresh_token, google_id, name, img_url) {
+  let user_id = uuid.v4();
+  let create_result = await db.query(
     'INSERT INTO users (id,refresh_token,google_id,name,img) VALUES ($1,$2,$3,$4,$5)',
-    [id, refresh_token, google_id, name, img_url]
+    [user_id, refresh_token, google_id, name, img_url]
   );
+  if (create_result.rowCount === 0) throw boom.badRequest('Failed to create user');
+  return await getByUserId(user_id);
 }
 
 async function update(id, refresh_token, name, img_url) {
-  await db.query(
+  let update_result = await db.query(
     'UPDATE users SET name = $1, img = $2, refresh_token = $3 WHERE id = $4',
     [name, img_url, refresh_token, id]
   );
+  if (update_result.rowCount === 0) throw boom.badRequest('Failed to update user', id);
+  return await getByUserId(id);
 }
 
 async function getByUserId(user_id) {
-  return await db.query(
+  let get_result = await db.query(
     'SELECT * FROM users WHERE id = $1',
     [user_id]
   );
+  if (get_result.rowCount === 0) throw boom.badRequest('Failed to find user', user_id);
+  return get_result.rows[0];
 }
 
 async function getByGoogleId(google_id) {
-  return await db.query(
+  let get_result = await db.query(
     'SELECT * FROM users WHERE google_id = $1',
     [google_id]
   );
+  if (get_result.rowCount === 0) throw boom.badRequest('Failed to find google_id', google_id);
+  return get_result.rows[0];
 }
 
 module.exports = {
