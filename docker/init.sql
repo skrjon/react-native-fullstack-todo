@@ -7,6 +7,7 @@ CREATE DATABASE todo OWNER todoadmin;
 CREATE TABLE users (
 	id UUID PRIMARY KEY,
 	google_id DECIMAL,
+	refresh_token text,
 	name text DEFAULT '',
 	img text DEFAULT ''
 );

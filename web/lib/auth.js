@@ -7,22 +7,24 @@ import users from '../db/users';
 import tokens from '../db/tokens';
 
 export async function googleCallback(accessToken, refreshToken, user, cb) {
+  console.log('GoogleStrategy', user);
   let profile = user._json;
-  console.log('GoogleStrategy', profile);
   // Find or Create User in Database
   let user_id = null;
   try {
     const { rows } = await users.getByGoogleId(profile.id);
+    console.log('getByGoogleId', rows);
     if (rows.length < 1) {
       user_id = uuid.v4();
       console.log('creating user', user_id);
-      await users.create(user_id, profile.id, profile.displayName, profile.image.url);
+      await users.create(user_id, refreshToken, profile.id, profile.displayName, profile.image.url);
     } else {
       user_id = rows[0].id;
-      await users.update(user_id, profile.displayName, profile.image.url);
+      await users.update(user_id, refreshToken, profile.displayName, profile.image.url);
     }
     if (!user_id) cb(null, {token: null});
   } catch (error) {
+    console.log('error creating user', error);
     cb(null, {token: null});
   }
   // Return User Token

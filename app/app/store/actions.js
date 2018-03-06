@@ -154,7 +154,7 @@ export const createTask = (task) => async (dispatch, getState) => {
         'access_token': getState().profile.token.access_token,
         'content-type': 'application/json'
       }),
-      method: 'PUT',
+      method: 'POST',
     });
     let response = await fetch_response.json();
     console.log('createTask:response', response);
@@ -191,7 +191,7 @@ export const toggleTask = (id, completed) => async (dispatch, getState) => {
         'access_token': getState().profile.token.access_token,
         'Content-Type': 'application/json'
       }),
-      method: 'POST',
+      method: 'PUT',
     });
     let response = await fetch_response.json();
     console.log('toggleTask:response', response);

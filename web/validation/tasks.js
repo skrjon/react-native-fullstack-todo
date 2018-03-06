@@ -9,7 +9,7 @@ module.exports.get = {
   },
 };
 
-module.exports.post = {
+module.exports.put = {
   body: {
     completed: Joi.boolean().required(),
   },
@@ -22,7 +22,7 @@ module.exports.post = {
   },
 };
 
-module.exports.put = {
+module.exports.post = {
   body: {
     description: Joi.string().trim().required(),
   },

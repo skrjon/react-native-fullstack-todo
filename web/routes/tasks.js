@@ -12,7 +12,7 @@ router.get('/', wrapAsync(async (req, res) => {
   res.json(all_tasks);
 }));
 
-router.put('/', validate(validation.tasks.put), wrapAsync(async (req, res) => {
+router.post('/', validate(validation.tasks.post), wrapAsync(async (req, res) => {
   const { description } = req.body;
   // Create a new task
   let new_task = await tasks.create(req.user.id, description);
@@ -28,7 +28,7 @@ router.get('/:id', validate(validation.tasks.get), wrapAsync(async (req, res) =>
   res.json(task);
 }));
 
-router.post('/:id', validate(validation.tasks.post), wrapAsync(async (req, res) => {
+router.put('/:id', validate(validation.tasks.put), wrapAsync(async (req, res) => {
   const { id } = req.params;
   const { completed } = req.body;
   // Update the task
