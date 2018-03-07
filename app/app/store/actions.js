@@ -1,3 +1,5 @@
+import request from '../lib/request';
+
 import {
   profileActions,
   taskActions,
@@ -12,19 +14,14 @@ export const addUser = (user) => ({ type: userActions.ADD, user });
 
 export const refreshAccessToken = () => async (dispatch, getState) => {
   console.log('refreshAccessToken');
-  let fetch_response = await fetch(DOMAIN + '/auth/token', {
-    headers: new Headers({
-      'refresh_token': getState().profile.token.refresh_token,
-    }),
-  });
-  console.log('refreshAccessToken',fetch_response);
-  let response = await fetch_response.json();
+  // Request a new access token
+  let response = await request.refresh('/auth/token');
   if(response.statusCode === 401) {
     // If we receive a 401 here it means our refresh token is no longer valid
     alert(response.message);
     return dispatch(removeProfile());
   }
-  if(!fetch_response.ok) {
+  if(response.statusCode && response.statusCode !== 200) {
     // If we recieve an error here the user will need to login again
     alert(response.message);
     return dispatch(removeProfile());
@@ -46,15 +43,10 @@ export const updateProfile = (profile) => ({ profile, type: profileActions.PROFI
 
 export const getProfile = () => async (dispatch, getState) => {
   // Set status to fetching
-  await dispatch(fetchingProfile());
+  dispatch(fetchingProfile());
   try {
     // Gather data from API
-    let fetch_response = await fetch(DOMAIN + '/profile', {
-      headers: new Headers({
-        'access_token': getState().profile.token.access_token,
-      }),
-    });
-    let response = await fetch_response.json();
+    let response = await request.get('/profile');
     console.log('getProfile:response', response);
     if(response.statusCode === 401) {
       // Get a new Access Token
@@ -65,7 +57,7 @@ export const getProfile = () => async (dispatch, getState) => {
       alert(response.message);
       return dispatch(removeProfile());
     }
-    if(!fetch_response.ok) {
+    if(response.statusCode && response.statusCode !== 200) {
       alert(response.message);
       return dispatch(finishedProfile());
     }
@@ -79,14 +71,10 @@ export const getProfile = () => async (dispatch, getState) => {
 
 export const logoutProfile = () => async (dispatch, getState) => {
   // Set status to fetching
-  await dispatch(fetchingProfile());
+  dispatch(fetchingProfile());
   try {
     // Gather data from API
-    let response = await fetch(DOMAIN + '/auth/logout', {
-      headers: new Headers({
-        'access_token': getState().profile.token.access_token,
-      }),
-    });
+    let response = await request.get('/auth/logout');
     if(response.statusCode === 401) {
       // Get a new Access Token
       let refresh_response = await dispatch(refreshAccessToken());
@@ -111,16 +99,11 @@ const updateTask = (task) => ({ task, type: taskActions.UPDATE});
 
 export const getTasks = () => async (dispatch, getState) => {
   // Set status to fetching
-  await dispatch(fetchingTasks());
+  dispatch(fetchingTasks());
   try {
     // Gather data from API
-    let fetch_response = await fetch(DOMAIN + '/tasks', {
-      headers: new Headers({
-        'access_token': getState().profile.token.access_token,
-      }),
-    });
+    let response = await request.get('/tasks');
     console.log('getTasks:response', response);
-    let response = await fetch_response.json();
     if(response.statusCode === 401) {
       // Get a new Access Token
       let refresh_response = await dispatch(refreshAccessToken());
@@ -128,10 +111,10 @@ export const getTasks = () => async (dispatch, getState) => {
       if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(getTasks());
       // If token was not refreshed logout
       alert(response.message);
-      await dispatch(finishedTasks());
+      dispatch(finishedTasks());
       return dispatch(removeProfile());
     }
-    if(!fetch_response.ok) {
+    if(response.statusCode && response.statusCode !== 200) {
       alert(response.message);
       return dispatch(finishedTasks());
     }
@@ -145,18 +128,12 @@ export const getTasks = () => async (dispatch, getState) => {
 
 export const createTask = (task) => async (dispatch, getState) => {
   // Set status to fetching
-  await dispatch(fetchingTasks());
+  dispatch(fetchingTasks());
   try {
-    // Gather data from API
-    let fetch_response = await fetch(DOMAIN + '/tasks', {
-      body: JSON.stringify(task),
-      headers: new Headers({
-        'access_token': getState().profile.token.access_token,
-        'content-type': 'application/json'
-      }),
-      method: 'POST',
+    // Send task to the API
+    let response = await request.post('/tasks/'+id, {
+      body:task,
     });
-    let response = await fetch_response.json();
     console.log('createTask:response', response);
     if(response.statusCode === 401) {
       // Get a new Access Token
@@ -165,10 +142,10 @@ export const createTask = (task) => async (dispatch, getState) => {
       if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(createTask(task));
       // If token was not refreshed logout
       alert(response.message);
-      await dispatch(finishedTasks());
+      dispatch(finishedTasks());
       return dispatch(removeProfile());
     }
-    if(!fetch_response.ok) {
+    if(response.statusCode && response.statusCode !== 200) {
       alert(response.message);
       return dispatch(finishedTasks());
     }
@@ -182,18 +159,12 @@ export const createTask = (task) => async (dispatch, getState) => {
 
 export const toggleTask = (id, completed) => async (dispatch, getState) => {
   // Set status to fetching
-  await dispatch(fetchingTasks());
+  dispatch(fetchingTasks());
   try {
     // Gather data from API
-    let fetch_response = await fetch(DOMAIN + '/tasks/' + id, {
-      body: JSON.stringify({completed:completed}),
-      headers: new Headers({
-        'access_token': getState().profile.token.access_token,
-        'Content-Type': 'application/json'
-      }),
-      method: 'PUT',
+    let response = await request.put('/tasks/'+id, {
+      body:{completed:completed}
     });
-    let response = await fetch_response.json();
     console.log('toggleTask:response', response);
     if(response.statusCode === 401) {
       // Get a new Access Token
@@ -202,10 +173,10 @@ export const toggleTask = (id, completed) => async (dispatch, getState) => {
       if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(toggleTask(id, completed));
       // If token was not refreshed logout
       alert(response.message);
-      await dispatch(finishedTasks());
+      dispatch(finishedTasks());
       return dispatch(removeProfile());
     }
-    if(!fetch_response.ok) {
+    if(response.statusCode && response.statusCode !== 200) {
       alert(response.message);
       return dispatch(finishedTasks());
     }

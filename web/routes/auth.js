@@ -60,10 +60,6 @@ router.get('/token', validate(validation.auth.refresh_access_token), wrapAsync(a
 }));
 
 router.get('/google',
-  (req, res, next) => {
-    console.log('/GOOGLE CALLED');
-    next();
-  },
   passport.authenticate('google', {
     prompt: 'select_account',
     scope: ['profile'],
@@ -73,9 +69,8 @@ router.get('/google',
 
 router.get('/google/callback',
   (req, res, next) => {
-    console.log('/GOOGLE/CALLBACK CALLED');
+    // We need to implement a custom callback so we can handle info parameters
     passport.authenticate('google', (err, user, info) => {
-      console.log('CUSTOM CALLBACK', err, user, info);
       if (err) {
         return next(err);
       } else if (!user && info) {
@@ -88,7 +83,6 @@ router.get('/google/callback',
         return res.redirect('todoapp://login?token=' + JSON.stringify(user));
       }
       if (!user) return res.redirect('/auth/google');
-      console.log('WHY AM I HERE?');
     })(req, res, next);
   },
 );
