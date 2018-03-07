@@ -3,9 +3,9 @@ const WARNING = 1;
 const ERROR = 2;
 
 module.exports = {
-    'parser': 'babel-eslint',
-    'extends': [require('../.eslintrc.js'), 'plugin:react/recommended'],
-    'parserOptions': {
+  'parser': 'babel-eslint',
+  'extends': [require('../.eslintrc.js'), 'plugin:react/recommended'],
+  'parserOptions': {
     'ecmaFeatures': {
       'jsx': true
     }
@@ -35,5 +35,5 @@ module.exports = {
     'react/prop-types': OFF,
     'react-native/no-inline-styles': ERROR,
     'react-native/no-unused-styles': ERROR,
-  }
+  },
 };

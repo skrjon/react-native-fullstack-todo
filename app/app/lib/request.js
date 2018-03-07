@@ -1,16 +1,18 @@
 import { DOMAIN } from '../config';
 import store from '../store';
 
-async function request(url, params = {}) {
+async function request(url, params = {}) {  
   let token = store.getState().profile.token;
-  // Make sure params.headers exists
-  if(!params.headers) params.headers = {}
   // If we have an access_token lets use it
-  if (token.access_token) {
+  if (token && token.access_token) {
+    // Make sure params.headers exists
+    if(!params.headers) params.headers = {}
     params.headers.access_token = token.access_token;
   }
   // Check if we have a body stringify and add content type
   if (params.body) {
+    // Make sure params.headers exists
+    if(!params.headers) params.headers = {}
     params.headers['content-type'] ='application/json';
     params.body = JSON.stringify(params.body);
   }
@@ -34,12 +36,20 @@ async function refresh(url) {
   return await request(url, params);
 }
 
+async function remove(url, params = {}) {
+  let merged_params = {
+    ...params,
+    method: 'DELETE',
+  }
+  return await request(url, merged_params); 
+}
+
 async function put(url, params = {}) {
   let merged_params = {
     ...params,
     method: 'PUT',
   }
-  return await request(url, merged_params); 
+  return await request(url, merged_params);
 }
 
 async function post(url, params = {}) {
@@ -64,4 +74,5 @@ module.exports = {
   post,
   put,
   refresh,
+  remove,
 }
