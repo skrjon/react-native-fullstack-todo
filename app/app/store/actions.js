@@ -15,24 +15,25 @@ export const addUser = (user) => ({ type: userActions.ADD, user });
 export const refreshAccessToken = () => async (dispatch, getState) => {
   console.log('refreshAccessToken');
   // Request a new access token
-  let response = await request.refresh('/auth/token');
-  if(response.statusCode === 401) {
-    // If we receive a 401 here it means our refresh token is no longer valid
-    alert(response.message);
-    return dispatch(removeProfile());
-  }
-  if(response.statusCode && response.statusCode !== 200) {
+  try {
+    let response = await request.refresh('/auth/token');
+    // Assemble the updated token
+    let token = {
+      access_token: response.access_token,
+      expires_in: response.expires_in,
+      refresh_token: getState().profile.token.refresh_token,
+    }
+    return dispatch(loginProfile(token));
+  } catch (err) {
+    if(err.statusCode === 401) {
+      // If we receive a 401 here it means our refresh token is no longer valid
+      alert(err.message);
+      return dispatch(removeProfile());
+    }
     // If we recieve an error here the user will need to login again
-    alert(response.message);
+    alert(err.message);
     return dispatch(removeProfile());
   }
-  // Assemble the updated token
-  let token = {
-    access_token: response.access_token,
-    expires_in: response.expires_in,
-    refresh_token: getState().profile.token.refresh_token,
-  }
-  return dispatch(loginProfile(token));
 }
 
 export const fetchingProfile = () => ({ type: profileActions.FETCHING });
@@ -41,31 +42,31 @@ export const loginProfile = (token) => ({ token, type: profileActions.LOGIN });
 export const removeProfile = () => ({type: profileActions.REMOVE });
 export const updateProfile = (profile) => ({ profile, type: profileActions.PROFILE });
 
-export const getProfile = () => async (dispatch, getState) => {
+export const getProfile = (count = 0) => async (dispatch, getState) => {
   // Set status to fetching
   dispatch(fetchingProfile());
   try {
     // Gather data from API
     let response = await request.get('/profile');
     console.log('getProfile:response', response);
-    if(response.statusCode === 401) {
-      // Get a new Access Token
-      let refresh_response = await dispatch(refreshAccessToken());
-      // If successful recall toggleTask
-      if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(getProfile());
-      // If token was not refreshed logout
-      alert(response.message);
-      return dispatch(removeProfile());
-    }
-    if(response.statusCode && response.statusCode !== 200) {
-      alert(response.message);
-      return dispatch(finishedProfile());
-    }
     // Update redux store with profile data
     return dispatch(updateProfile(response));
-  } catch (error) {
-    console.error('getProfile', error);
-    return dispatch(removeProfile());
+  } catch (err) {
+    if(err.statusCode === 401) {
+      // Check if we have already tried refreshing
+      if(count === 0) {
+        // Get a new Access Token
+        let refresh_response = await dispatch(refreshAccessToken());
+        // If successful recall
+        if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(getProfile(1));
+      }
+      // If token was not refreshed logout
+      alert(err.message);
+      return dispatch(removeProfile());
+    }
+    console.log('getProfile', error);
+    alert(err.message);
+    return dispatch(finishedProfile());
   }
 };
 
@@ -75,18 +76,18 @@ export const logoutProfile = () => async (dispatch, getState) => {
   try {
     // Gather data from API
     let response = await request.get('/auth/logout');
-    if(response.statusCode === 401) {
+    return dispatch(removeProfile());
+  } catch (err) {
+    if(err.statusCode === 401) {
       // Get a new Access Token
       let refresh_response = await dispatch(refreshAccessToken());
-      // If successful recall toggleTask
+      // If successful recall
       if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(logoutProfile());
       // If token was not refreshed logout anyway
-      alert(response.message);
+      alert(err.message);
       return dispatch(removeProfile());
     }
-    return dispatch(removeProfile());
-  } catch (error) {
-    console.error('logoutProfile', error);
+    console.log('logoutProfile', err);
     return dispatch(removeProfile());
   }
 };
@@ -104,24 +105,23 @@ export const getTasks = () => async (dispatch, getState) => {
     // Gather data from API
     let response = await request.get('/tasks');
     console.log('getTasks:response', response);
-    if(response.statusCode === 401) {
+    // Update redux store with task list
+    return dispatch(receiveTasks(response));
+  } catch (err) {
+    // Handle authentication errors
+    if(err.statusCode === 401) {
       // Get a new Access Token
       let refresh_response = await dispatch(refreshAccessToken());
-      // If successful recall toggleTask
+      // If successful recall
       if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(getTasks());
       // If token was not refreshed logout
-      alert(response.message);
+      alert(err.message);
       dispatch(finishedTasks());
       return dispatch(removeProfile());
     }
-    if(response.statusCode && response.statusCode !== 200) {
-      alert(response.message);
-      return dispatch(finishedTasks());
-    }
-    // Update redux store with task list
-    return dispatch(receiveTasks(response));
-  } catch (error) {
-    console.error('getTasks', error);
+    console.log('getTasks', err);
+    // All other errors
+    alert(err.message);
     return dispatch(finishedTasks());
   }
 };
@@ -135,24 +135,21 @@ export const createTask = (task) => async (dispatch, getState) => {
       body:task,
     });
     console.log('createTask:response', response);
-    if(response.statusCode === 401) {
+    // Update redux store with new task
+    return dispatch(addTask(response));
+  } catch (err) {
+    if(err.statusCode === 401) {
       // Get a new Access Token
       let refresh_response = await dispatch(refreshAccessToken());
-      // If successful recall toggleTask
+      // If successful recall
       if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(createTask(task));
       // If token was not refreshed logout
-      alert(response.message);
+      alert(err.message);
       dispatch(finishedTasks());
       return dispatch(removeProfile());
     }
-    if(response.statusCode && response.statusCode !== 200) {
-      alert(response.message);
-      return dispatch(finishedTasks());
-    }
-    // Update redux store with new task
-    return dispatch(addTask(response));
-  } catch (error) {
-    console.error('createTask', error);
+    console.log('createTask', error);
+    alert(response.message);
     return dispatch(finishedTasks());
   }
 };
@@ -163,27 +160,25 @@ export const toggleTask = (id, completed) => async (dispatch, getState) => {
   try {
     // Gather data from API
     let response = await request.put('/tasks/'+id, {
-      body:{completed:completed}
+      body:{completed:completed},
     });
     console.log('toggleTask:response', response);
-    if(response.statusCode === 401) {
+    // Update redux store with new task information
+    return dispatch(updateTask(response));
+  } catch (err) {
+    console.log('toggleTask:err', err);
+    if(err.statusCode === 401) {
       // Get a new Access Token
       let refresh_response = await dispatch(refreshAccessToken());
-      // If successful recall toggleTask
+      // If successful recall
       if (refresh_response.type === 'PROFILE_LOGIN') return dispatch(toggleTask(id, completed));
       // If token was not refreshed logout
-      alert(response.message);
+      alert(err.message);
       dispatch(finishedTasks());
       return dispatch(removeProfile());
     }
-    if(response.statusCode && response.statusCode !== 200) {
-      alert(response.message);
-      return dispatch(finishedTasks());
-    }
-    // Update redux store with new task information
-    return dispatch(updateTask(response));
-  } catch (error) {
-    console.error('toggleTask', error);
+    console.log('toggleTask', error);
+    alert(err.message);
     return dispatch(finishedTasks());
   }
 };

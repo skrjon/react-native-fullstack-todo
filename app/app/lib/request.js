@@ -17,8 +17,11 @@ async function request(url, params = {}) {
   // Make fetch request
   let fetch_response = await fetch(DOMAIN + url, params);
   console.log('request:fetch_response', fetch_response);
+  // Conert to JSON object, if there is an error the calling method will need to catch
   let response = await fetch_response.json();
-
+  // If the reponse is not ok we need to throw an error
+  if(!fetch_response.ok) throw response;
+  // Return the valid response
   return response;
 }
 
